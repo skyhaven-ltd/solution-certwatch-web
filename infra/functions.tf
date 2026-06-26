@@ -52,9 +52,11 @@ resource "azurerm_function_app_flex_consumption" "main" {
   app_settings = {
     COSMOS_ENDPOINT = azurerm_cosmosdb_account.main.endpoint
     COSMOS_DATABASE = azurerm_cosmosdb_sql_database.certwatch.name
-    ACS_ENDPOINT    = "https://${azurerm_communication_service.main.name}.communication.azure.com"
 
-    ACS_SENDER_EMAIL = "DoNotReply@${azurerm_email_communication_service_domain.main.mail_from_sender_domain}"
+    BREVO_API_KEY   = var.brevo_api_key
+    EMAIL_FROM      = var.email_from
+    EMAIL_FROM_NAME = var.email_from_name
+    EMAIL_REPLY_TO  = var.email_reply_to
   }
 
   identity {

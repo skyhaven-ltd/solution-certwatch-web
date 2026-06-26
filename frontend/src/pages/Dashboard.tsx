@@ -20,13 +20,16 @@ export function Dashboard() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const expiringSoon = certs.filter((c) => {
+  const withExpiry = certs.filter(
+    (c): c is Certification & { expirationDate: string } => !!c.expirationDate,
+  );
+  const expiringSoon = withExpiry.filter((c) => {
     const days = Math.ceil(
       (new Date(c.expirationDate).getTime() - today.getTime()) / 86400000,
     );
     return days >= 0 && days <= 30;
   });
-  const expired = certs.filter((c) => new Date(c.expirationDate) < today);
+  const expired = withExpiry.filter((c) => new Date(c.expirationDate) < today);
 
   return (
     <div>

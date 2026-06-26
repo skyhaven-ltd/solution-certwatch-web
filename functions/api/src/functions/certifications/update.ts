@@ -47,7 +47,7 @@ async function handler(
     // Recalculate status if expiration date changed
     if (body.expirationDate) {
       updated.status =
-        new Date(updated.expirationDate) < new Date() ? "expired" : "active";
+        new Date(body.expirationDate) < new Date() ? "expired" : "active";
     }
 
     const { resource } = await container.items.upsert<Certification>(updated);

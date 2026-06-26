@@ -21,20 +21,6 @@
     "rewrite": "/index.html",
     "exclude": ["/api/*", "/*.{css,js,png,jpg,svg,ico}"]
   },
-  "auth": {
-    "identityProviders": {
-      "azureActiveDirectory": {
-        "registration": {
-          "openIdIssuer": "https://login.microsoftonline.com/bcfa57b3-7ca9-479a-bd62-2d2894d69ee4/v2.0",
-          "clientIdSettingName": "ENTRA_CLIENT_ID",
-          "clientSecretSettingName": "ENTRA_CLIENT_SECRET"
-        },
-        "login": {
-          "loginParameters": ["scope=openid profile email"]
-        }
-      }
-    }
-  },
   "globalHeaders": {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",

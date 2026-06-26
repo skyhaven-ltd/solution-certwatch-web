@@ -6,73 +6,95 @@ import {
 } from "@azure/functions";
 import { validateToken } from "../../shared/auth/validateToken";
 import { containers } from "../../shared/db/cosmosClient";
-import { Certification } from "../../shared/models/certification";
-import { providerRegistry } from "../../shared/providers/registry";
+import { User } from "../../shared/models/user";
+import { syncCredlyForUser } from "../../shared/sync/syncUser";
+
+interface SyncRequest {
+  username?: string;
+}
+
+// Matches the defaults applied by PUT /v1/users/me so a profile first created
+// here is indistinguishable from one created via Settings.
+const DEFAULT_PREFERENCES = {
+  emailEnabled: true,
+  emailDaysBefore: [30, 14, 7],
+  smsEnabled: false,
+  smsDaysBefore: [],
+};
 
 async function handler(
   req: HttpRequest,
   _ctx: InvocationContext,
 ): Promise<HttpResponseInit> {
+  let auth;
   try {
-    const auth = await validateToken(req);
-    const id = req.params["id"];
-
-    const container = containers.certifications();
-    const { resource: cert } = await container
-      .item(id, auth.userId)
-      .read<Certification>();
-
-    if (!cert || cert.userId !== auth.userId) {
-      return { status: 404, jsonBody: { error: "Certification not found." } };
-    }
-
-    const provider = providerRegistry.getProvider(cert.vendor);
-    if (!provider) {
-      return {
-        status: 422,
-        jsonBody: {
-          error: `No provider registered for vendor: ${cert.vendor}`,
-        },
-      };
-    }
-
-    const isAvailable = await provider.isAvailable();
-    if (!isAvailable) {
-      return {
-        status: 202,
-        jsonBody: {
-          status: "unavailable",
-          message: `${provider.displayName} integration is not yet available.`,
-        },
-      };
-    }
-
-    const certStatus = cert.vendorCertId
-      ? await provider.getCertificationStatus(cert.vendorCertId)
-      : { status: "unknown" as const, lastVerified: new Date().toISOString() };
-
-    const updated: Certification = {
-      ...cert,
-      status: certStatus.status,
-      expirationDate: certStatus.expirationDate ?? cert.expirationDate,
-      lastSyncedAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    await container.items.upsert<Certification>(updated);
-    return {
-      status: 202,
-      jsonBody: { status: "synced", certificationStatus: certStatus.status },
-    };
+    auth = await validateToken(req);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unauthorized";
     return { status: 401, jsonBody: { error: message } };
   }
+
+  const body = (await req.json().catch(() => ({}))) as SyncRequest;
+  const providedUsername = (body.username ?? "").trim();
+
+  const usersContainer = containers.users();
+  const { resource: existing } = await usersContainer
+    .item(auth.userId, auth.userId)
+    .read<User>();
+
+  // A username in the body links/relinks the profile ("Link & import"); without
+  // it we sync the already-linked profile ("Sync now").
+  const effective = providedUsername || existing?.credlyUsername?.trim();
+  if (!effective) {
+    return {
+      status: 400,
+      jsonBody: {
+        error: "No Credly profile linked. Provide a Credly username to link.",
+      },
+    };
+  }
+
+  // A first-time user may reach "Connect Credly" before any profile write has
+  // created their record (only PUT /v1/users/me does that, via Settings). When
+  // they're linking, provision the record here — mirroring updateProfile — so
+  // linking succeeds on the first attempt instead of 404-ing. syncCredlyForUser
+  // persists the user via upsert.
+  const now = new Date().toISOString();
+  const baseUser: User = existing ?? {
+    id: auth.userId,
+    userId: auth.userId,
+    email: auth.email,
+    displayName: auth.displayName,
+    reminderPreferences: DEFAULT_PREFERENCES,
+    credlyUsername: null,
+    credlyLastSyncedAt: null,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  const targetUser: User = providedUsername
+    ? { ...baseUser, credlyUsername: providedUsername }
+    : baseUser;
+
+  try {
+    const result = await syncCredlyForUser(targetUser);
+    return {
+      status: 200,
+      jsonBody: {
+        status: "synced",
+        credlyUsername: effective,
+        ...result,
+      },
+    };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Credly sync failed.";
+    return { status: 502, jsonBody: { error: message } };
+  }
 }
 
-app.http("syncCertification", {
+app.http("syncCertifications", {
   methods: ["POST"],
   authLevel: "anonymous",
-  route: "v1/certifications/{id}/sync",
+  route: "v1/certifications/sync",
   handler,
 });

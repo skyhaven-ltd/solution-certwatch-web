@@ -38,6 +38,10 @@ async function handler(
             ...existing.reminderPreferences,
             ...body.reminderPreferences,
           },
+          credlyUsername:
+            body.credlyUsername !== undefined
+              ? body.credlyUsername
+              : existing.credlyUsername,
           updatedAt: now,
         }
       : {
@@ -49,6 +53,7 @@ async function handler(
             ...DEFAULT_PREFERENCES,
             ...body.reminderPreferences,
           },
+          credlyUsername: body.credlyUsername ?? null,
           createdAt: now,
           updatedAt: now,
         };

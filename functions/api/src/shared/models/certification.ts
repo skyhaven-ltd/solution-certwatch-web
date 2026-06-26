@@ -1,14 +1,25 @@
-export type CertificationVendor = "microsoft" | "aws" | "comptia" | "other";
+export type CertificationVendor =
+  | "microsoft"
+  | "aws"
+  | "comptia"
+  | "hashicorp"
+  | "other";
 export type CertificationStatus = "active" | "expired" | "pending" | "unknown";
+export type CertificationSource = "manual" | "credly";
 
 export interface Certification {
   id: string;
   userId: string;
   name: string;
   vendor: CertificationVendor;
+  // For Credly-sourced certs this holds the Credly badge_template.id, used to
+  // match and dedupe badges across syncs.
   vendorCertId?: string | null;
-  expirationDate: string; // ISO date: YYYY-MM-DD
+  expirationDate: string | null; // ISO date YYYY-MM-DD, or null for no-expiry credentials
   status: CertificationStatus;
+  // Where this record is reconciled from. Credly sync only ever upserts
+  // source === "credly" records; manual certs are never overwritten.
+  source: CertificationSource;
   syncEnabled: boolean;
   lastSyncedAt?: string | null;
   createdAt: string;

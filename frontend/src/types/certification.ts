@@ -1,5 +1,11 @@
-export type CertificationVendor = "microsoft" | "aws" | "comptia" | "other";
+export type CertificationVendor =
+  | "microsoft"
+  | "aws"
+  | "comptia"
+  | "hashicorp"
+  | "other";
 export type CertificationStatus = "active" | "expired" | "pending" | "unknown";
+export type CertificationSource = "manual" | "credly";
 
 export interface Certification {
   id: string;
@@ -7,8 +13,9 @@ export interface Certification {
   name: string;
   vendor: CertificationVendor;
   vendorCertId?: string | null;
-  expirationDate: string;
+  expirationDate: string | null;
   status: CertificationStatus;
+  source?: CertificationSource;
   syncEnabled: boolean;
   lastSyncedAt?: string | null;
   createdAt: string;
@@ -28,4 +35,25 @@ export interface UpdateCertificationRequest {
   vendorCertId?: string | null;
   expirationDate?: string;
   syncEnabled?: boolean;
+}
+
+export interface CredlyBadgePreview {
+  name: string;
+  vendor: CertificationVendor;
+  expiresAt: string | null;
+}
+
+export interface CredlyPreviewResponse {
+  username: string;
+  count: number;
+  badges: CredlyBadgePreview[];
+}
+
+export interface CredlySyncResponse {
+  status: string;
+  credlyUsername: string;
+  created: number;
+  updated: number;
+  unchanged: number;
+  credlyLastSyncedAt: string;
 }

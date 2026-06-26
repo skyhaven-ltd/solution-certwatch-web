@@ -14,7 +14,6 @@
     "lint": "eslint src --ext .ts"
   },
   "dependencies": {
-    "@azure/communication-email": "^1.0.0",
     "@azure/cosmos": "^4.0.0",
     "@azure/functions": "^4.0.0",
     "uuid": "^14.0.0",

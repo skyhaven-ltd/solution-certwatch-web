@@ -53,6 +53,12 @@ async function handler(_timer: unknown, ctx: InvocationContext): Promise<void> {
         continue;
       }
 
+      // No-expiry certs (e.g. Credly badges with no expiry) never trigger reminders.
+      if (!cert.expirationDate) {
+        skipped++;
+        continue;
+      }
+
       const expiryDate = new Date(cert.expirationDate);
       const daysUntilExpiry = Math.ceil(
         (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),

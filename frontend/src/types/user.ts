@@ -11,6 +11,8 @@ export interface UserProfile {
   email: string;
   displayName: string;
   reminderPreferences: ReminderPreferences;
+  credlyUsername?: string | null;
+  credlyLastSyncedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }

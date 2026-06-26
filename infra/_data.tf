@@ -1,5 +1,3 @@
-data "azurerm_client_config" "current" {}
-
 data "cloudflare_zone" "skyhaven_ltd" {
   filter = {
     name       = "skyhaven.ltd"

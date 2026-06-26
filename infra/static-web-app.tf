@@ -12,8 +12,10 @@ resource "azurerm_static_web_app" "main" {
     COSMOS_KEY          = azurerm_cosmosdb_account.main.primary_key
     COSMOS_DATABASE     = azurerm_cosmosdb_sql_database.certwatch.name
 
-    ACS_CONNECTION_STRING = azurerm_communication_service.main.primary_connection_string
-    ACS_SENDER_EMAIL      = "DoNotReply@${azurerm_email_communication_service_domain.main.mail_from_sender_domain}"
+    BREVO_API_KEY   = var.brevo_api_key
+    EMAIL_FROM      = var.email_from
+    EMAIL_FROM_NAME = var.email_from_name
+    EMAIL_REPLY_TO  = var.email_reply_to
   }
 
   tags = local.tags

@@ -15,6 +15,7 @@ const VENDORS: { value: CertificationVendor; label: string }[] = [
   { value: "microsoft", label: "Microsoft" },
   { value: "aws", label: "Amazon Web Services" },
   { value: "comptia", label: "CompTIA" },
+  { value: "hashicorp", label: "HashiCorp" },
   { value: "other", label: "Other" },
 ];
 

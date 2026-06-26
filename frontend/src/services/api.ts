@@ -1,7 +1,8 @@
 import type {
   Certification,
-  CreateCertificationRequest,
   UpdateCertificationRequest,
+  CredlyPreviewResponse,
+  CredlySyncResponse,
 } from "../types/certification";
 import type { UserProfile, ReminderPreferences } from "../types/user";
 
@@ -37,11 +38,6 @@ export const api = {
 
   certifications: {
     list: () => request<Certification[]>("/certifications"),
-    create: (body: CreateCertificationRequest) =>
-      request<Certification>("/certifications", {
-        method: "POST",
-        body: JSON.stringify(body),
-      }),
     getById: (id: string) => request<Certification>(`/certifications/${id}`),
     update: (id: string, body: UpdateCertificationRequest) =>
       request<Certification>(`/certifications/${id}`, {
@@ -50,8 +46,24 @@ export const api = {
       }),
     remove: (id: string) =>
       request<void>(`/certifications/${id}`, { method: "DELETE" }),
-    sync: (id: string) =>
-      request<{ status: string }>(`/certifications/${id}/sync`, {
+    // Per-user Credly sync. Pass a username to link/relink ("Link & import");
+    // omit it to sync the already-linked profile ("Sync now").
+    sync: (username?: string) =>
+      request<CredlySyncResponse>("/certifications/sync", {
+        method: "POST",
+        body: JSON.stringify(username ? { username } : {}),
+      }),
+  },
+
+  credly: {
+    preview: (username: string) =>
+      request<CredlyPreviewResponse>("/credly/preview", {
+        method: "POST",
+        body: JSON.stringify({ username }),
+      }),
+    // Unlinks the Credly profile and removes all certs imported from it.
+    unlink: () =>
+      request<{ status: string; removed: number }>("/credly/unlink", {
         method: "POST",
       }),
   },

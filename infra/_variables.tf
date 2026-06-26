@@ -49,3 +49,26 @@ variable "entra_client_secret" {
   description = "Entra app registration client secret for SWA authentication."
   sensitive   = true
 }
+
+variable "brevo_api_key" {
+  type        = string
+  description = "Brevo API key for transactional email."
+  sensitive   = true
+}
+
+variable "email_from" {
+  type        = string
+  description = "Verified Brevo sender email address for outbound email."
+}
+
+variable "email_from_name" {
+  type        = string
+  description = "Display name for outbound email."
+  default     = "CertWatch"
+}
+
+variable "email_reply_to" {
+  type        = string
+  description = "Reply-to address for outbound email. Empty disables reply-to."
+  default     = ""
+}

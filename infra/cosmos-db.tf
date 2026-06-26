@@ -32,7 +32,7 @@ resource "azurerm_cosmosdb_sql_database" "certwatch" {
 }
 
 resource "azurerm_cosmosdb_sql_container" "users" {
-  name                = "users-${local.resource_suffix}"
+  name                = "users"
   resource_group_name = azurerm_resource_group.main.name
   account_name        = azurerm_cosmosdb_account.main.name
   database_name       = azurerm_cosmosdb_sql_database.certwatch.name
@@ -48,7 +48,7 @@ resource "azurerm_cosmosdb_sql_container" "users" {
 }
 
 resource "azurerm_cosmosdb_sql_container" "certifications" {
-  name                = "cosmos-certifications-${local.resource_suffix}"
+  name                = "certifications"
   resource_group_name = azurerm_resource_group.main.name
   account_name        = azurerm_cosmosdb_account.main.name
   database_name       = azurerm_cosmosdb_sql_database.certwatch.name
@@ -76,7 +76,7 @@ resource "azurerm_cosmosdb_sql_container" "certifications" {
 }
 
 resource "azurerm_cosmosdb_sql_container" "reminder_logs" {
-  name                = "cosmos-reminder-logs-${local.resource_suffix}"
+  name                = "reminderLogs"
   resource_group_name = azurerm_resource_group.main.name
   account_name        = azurerm_cosmosdb_account.main.name
   database_name       = azurerm_cosmosdb_sql_database.certwatch.name
