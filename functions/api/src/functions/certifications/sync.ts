@@ -13,6 +13,15 @@ interface SyncRequest {
   username?: string;
 }
 
+// Matches the defaults applied by PUT /v1/users/me so a profile first created
+// here is indistinguishable from one created via Settings.
+const DEFAULT_PREFERENCES = {
+  emailEnabled: true,
+  emailDaysBefore: [30, 14, 7],
+  smsEnabled: false,
+  smsDaysBefore: [],
+};
+
 async function handler(
   req: HttpRequest,
   _ctx: InvocationContext,
@@ -29,20 +38,13 @@ async function handler(
   const providedUsername = (body.username ?? "").trim();
 
   const usersContainer = containers.users();
-  const { resource: user } = await usersContainer
+  const { resource: existing } = await usersContainer
     .item(auth.userId, auth.userId)
     .read<User>();
 
-  if (!user) {
-    return {
-      status: 404,
-      jsonBody: { error: "User profile not found. Call PUT /v1/users/me first." },
-    };
-  }
-
   // A username in the body links/relinks the profile ("Link & import"); without
   // it we sync the already-linked profile ("Sync now").
-  const effective = providedUsername || user.credlyUsername?.trim();
+  const effective = providedUsername || existing?.credlyUsername?.trim();
   if (!effective) {
     return {
       status: 400,
@@ -52,9 +54,27 @@ async function handler(
     };
   }
 
+  // A first-time user may reach "Connect Credly" before any profile write has
+  // created their record (only PUT /v1/users/me does that, via Settings). When
+  // they're linking, provision the record here — mirroring updateProfile — so
+  // linking succeeds on the first attempt instead of 404-ing. syncCredlyForUser
+  // persists the user via upsert.
+  const now = new Date().toISOString();
+  const baseUser: User = existing ?? {
+    id: auth.userId,
+    userId: auth.userId,
+    email: auth.email,
+    displayName: auth.displayName,
+    reminderPreferences: DEFAULT_PREFERENCES,
+    credlyUsername: null,
+    credlyLastSyncedAt: null,
+    createdAt: now,
+    updatedAt: now,
+  };
+
   const targetUser: User = providedUsername
-    ? { ...user, credlyUsername: providedUsername }
-    : user;
+    ? { ...baseUser, credlyUsername: providedUsername }
+    : baseUser;
 
   try {
     const result = await syncCredlyForUser(targetUser);
