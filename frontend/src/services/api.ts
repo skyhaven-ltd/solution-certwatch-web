@@ -1,6 +1,5 @@
 import type {
   Certification,
-  CreateCertificationRequest,
   UpdateCertificationRequest,
   CredlyPreviewResponse,
   CredlySyncResponse,
@@ -39,11 +38,6 @@ export const api = {
 
   certifications: {
     list: () => request<Certification[]>("/certifications"),
-    create: (body: CreateCertificationRequest) =>
-      request<Certification>("/certifications", {
-        method: "POST",
-        body: JSON.stringify(body),
-      }),
     getById: (id: string) => request<Certification>(`/certifications/${id}`),
     update: (id: string, body: UpdateCertificationRequest) =>
       request<Certification>(`/certifications/${id}`, {

@@ -97,9 +97,6 @@ export function AppLayout() {
         >
           Certifications
         </Link>
-        <Link to="/credly" style={{ color: "#ccc", textDecoration: "none" }}>
-          Connect Credly
-        </Link>
         <Link to="/settings" style={{ color: "#ccc", textDecoration: "none" }}>
           Settings
         </Link>

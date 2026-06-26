@@ -12,7 +12,6 @@ providerRegistry.register(new CompTIACertProvider());
 import "./functions/users/getProfile";
 import "./functions/users/updateProfile";
 import "./functions/certifications/list";
-import "./functions/certifications/create";
 import "./functions/certifications/getById";
 import "./functions/certifications/update";
 import "./functions/certifications/remove";
