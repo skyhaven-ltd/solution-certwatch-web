@@ -92,7 +92,11 @@ export function CredlyLink() {
         <p style={{ color: "#3730a3", fontSize: "0.875rem" }}>
           Currently linked as <strong>{profile.credlyUsername}</strong>
           {profile.credlyLastSyncedAt && (
-            <> · last synced {new Date(profile.credlyLastSyncedAt).toLocaleString()}</>
+            <>
+              {" "}
+              · last synced{" "}
+              {new Date(profile.credlyLastSyncedAt).toLocaleString()}
+            </>
           )}
         </p>
       )}
@@ -124,7 +128,13 @@ export function CredlyLink() {
       </form>
 
       {error && (
-        <div style={{ color: "#dc2626", fontSize: "0.875rem", marginBottom: "1rem" }}>
+        <div
+          style={{
+            color: "#dc2626",
+            fontSize: "0.875rem",
+            marginBottom: "1rem",
+          }}
+        >
           {error}
         </div>
       )}
@@ -156,7 +166,8 @@ export function CredlyLink() {
                   {b.name}{" "}
                   <span style={{ color: "#6b7280" }}>
                     ({VENDOR_LABELS[b.vendor] ?? b.vendor}
-                    {b.expiresAt ? ` · expires ${b.expiresAt}` : " · no expiry"})
+                    {b.expiresAt ? ` · expires ${b.expiresAt}` : " · no expiry"}
+                    )
                   </span>
                 </li>
               ))}

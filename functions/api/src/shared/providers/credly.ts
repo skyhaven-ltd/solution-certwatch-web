@@ -76,7 +76,9 @@ export class CredlySyncSource implements ICertSyncSource {
         );
       }
       if (!response.ok) {
-        throw new Error(`Credly request failed with status ${response.status}.`);
+        throw new Error(
+          `Credly request failed with status ${response.status}.`,
+        );
       }
 
       const body = (await response.json()) as CredlyResponse;

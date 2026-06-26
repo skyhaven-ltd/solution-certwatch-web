@@ -1,9 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { containers } from "../db/cosmosClient";
-import {
-  Certification,
-  CertificationStatus,
-} from "../models/certification";
+import { Certification, CertificationStatus } from "../models/certification";
 import { ReminderLog } from "../models/reminder";
 import { NormalizedBadge } from "../providers/syncSource";
 

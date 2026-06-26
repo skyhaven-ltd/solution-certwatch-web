@@ -28,7 +28,8 @@ async function handler(
   const { resources: credlyCerts } = await certsContainer.items
     .query<Certification>(
       {
-        query: "SELECT * FROM c WHERE c.userId = @userId AND c.source = @source",
+        query:
+          "SELECT * FROM c WHERE c.userId = @userId AND c.source = @source",
         parameters: [
           { name: "@userId", value: auth.userId },
           { name: "@source", value: "credly" },
